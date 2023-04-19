@@ -5,23 +5,23 @@ export const AppTable = ({ loading, columns, data }) => (
         <Row>
             <Col className="position-relative">
                 {loading && (
-                    <div className="position-absolute top-0 d-flex justify-content-center w-100 p-5">
+                    <div data-testid="spinner-container" className="position-absolute top-0 d-flex justify-content-center w-100 p-5">
                         <Spinner />
                     </div>
                 )}
                 <Table striped bordered>
                     <thead>
                         <tr>
-                            {columns.map(({ label }) => (
-                                <th>{label}</th>
+                            {columns.map(({ label, accessor }) => (
+                                <th key={accessor}>{label}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((row) => (
-                            <tr>
+                        {data.map((row, idx) => (
+                            <tr key={`row-${idx}`}>
                                 {columns.map(({ accessor }) => (
-                                    <td>{row[accessor]}</td>
+                                    <td key={`cell-${accessor}`}>{row[accessor]}</td>
                                 ))}
                             </tr>
                         ))}

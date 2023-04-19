@@ -10,6 +10,7 @@ export const AppSearchBar = ({ onSearch, onReset, loading }) => {
                 <Col xs={12}>
                     <Form.Label htmlFor="fileNameQuery">File Name</Form.Label>
                     <Form.Control
+                        data-testid="searchInput"
                         id="fileNameQuery"
                         aria-describedby="fileNameQueryHelp"
                         value={inputValue}
@@ -42,7 +43,7 @@ export const AppSearchBar = ({ onSearch, onReset, loading }) => {
                         color: 'danger',
                     },
                 ].map(({ label, onClick, color }) => (
-                    <Col xs={6}>
+                    <Col key={label} xs={6}>
                         <div className="d-grid">
                             <Button disabled={loading} variant={color} onClick={onClick}>
                                 {label}
