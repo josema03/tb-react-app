@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Col, Container, Form, Navbar, Row, Spinner, Table } from 'react-bootstrap';
+import { Container, Navbar } from 'react-bootstrap';
 import { getData } from './apis/tb-express-server';
+import { AppSearchBar } from './components/AppSearchBar';
+import { AppTable } from './components/AppTable';
 
 function App() {
-    const [inputValue, setInputValue] = useState('');
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -17,11 +18,11 @@ function App() {
         []
     );
 
-    const queryData = useCallback(async (fileData) => {
+    const queryData = useCallback(async (fileName) => {
         setLoading(true);
 
         try {
-            const response = await getData(fileData);
+            const response = await getData(fileName);
 
             if (!response.ok) throw new Error(response.error);
 
@@ -54,85 +55,8 @@ function App() {
                     <Navbar.Brand className="fw-bold">React Test App</Navbar.Brand>
                 </Container>
             </Navbar>
-            <div className="my-4">
-                <Container>
-                    <Row className="my-2">
-                        <Col xs={12}>
-                            <Form.Label htmlFor="fileNameQuery">File Name</Form.Label>
-                            <Form.Control
-                                id="fileNameQuery"
-                                aria-describedby="fileNameQueryHelp"
-                                value={inputValue}
-                                onChange={({ target: { value } }) => setInputValue(value)}
-                            />
-                            <Form.Text id="fileNameQueryHelp" muted>
-                                Search for a specific file by providing its name.
-                            </Form.Text>
-                        </Col>
-                    </Row>
-                    <Row className="my-2">
-                        {[
-                            {
-                                label: 'Search',
-                                onClick: () => {
-                                    if (loading) return;
-                                    queryData(inputValue);
-                                },
-                                color: 'primary',
-                            },
-                            {
-                                label: 'Reset',
-                                onClick: () => {
-                                    if (loading) return;
-                                    setInputValue('');
-                                    queryData();
-                                },
-                                color: 'danger',
-                            },
-                        ].map(({ label, onClick, color }) => (
-                            <Col xs={6}>
-                                <div className="d-grid">
-                                    <Button disabled={loading} variant={color} onClick={onClick}>
-                                        {label}
-                                    </Button>
-                                </div>
-                            </Col>
-                        ))}
-                    </Row>
-                    <Row className="my-4">
-                        <Col className="position-relative">
-                            {loading && (
-                                <div className="position-absolute top-0 d-flex justify-content-center w-100 p-5">
-                                    <Spinner />
-                                </div>
-                            )}
-                            <Table striped bordered>
-                                <thead>
-                                    <tr>
-                                        {columns.map(({ label }) => (
-                                            <th>{label}</th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data.map((row) => (
-                                        <tr>
-                                            {columns.map(({ accessor }) => (
-                                                <td>{row[accessor]}</td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                    {!loading && data.length === 0 && (
-                                        <tr>
-                                            <td colSpan={columns.length}>Not found</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </Table>
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
+            <AppSearchBar onSearch={(value) => queryData(value)} onReset={() => queryData()} loading={loading} />
+            <AppTable loading={loading} columns={columns} data={data} />
         </>
     );
 }
