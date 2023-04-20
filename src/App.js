@@ -1,52 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
-import { getData } from './apis/tb-express-server';
+import { useDispatch, useSelector } from 'react-redux';
 import { AppSearchBar } from './components/AppSearchBar';
 import { AppTable } from './components/AppTable';
+import { fetchTableData } from './stores';
 
 function App() {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
 
-    const columns = useMemo(
-        () => [
-            { accessor: 'file', label: 'File Name' },
-            { accessor: 'text', label: 'Text' },
-            { accessor: 'number', label: 'Number' },
-            { accessor: 'hex', label: 'Hex' },
-        ],
-        []
-    );
-
-    const queryData = useCallback(async (fileName) => {
-        setLoading(true);
-
-        try {
-            const response = await getData(fileName);
-
-            if (!response.ok) throw new Error(response.error);
-
-            const updatedData = response.value
-                .map(({ file, lines }) => {
-                    return lines.map((line) => ({
-                        file,
-                        ...line,
-                    }));
-                })
-                .flat();
-
-            setData(updatedData);
-        } catch (error) {
-            setData([]);
-            console.error(error);
-        }
-
-        setLoading(false);
-    }, []);
+    const columns = useSelector((state) => state.table.columns);
+    const data = useSelector((state) => state.table.data);
+    const loading = useSelector((state) => state.table.loading);
 
     useEffect(() => {
-        queryData();
-    }, [queryData]);
+        dispatch(fetchTableData());
+    }, [dispatch]);
 
     return (
         <>
@@ -55,7 +23,11 @@ function App() {
                     <Navbar.Brand className="fw-bold">React Test App</Navbar.Brand>
                 </Container>
             </Navbar>
-            <AppSearchBar onSearch={(value) => queryData(value)} onReset={() => queryData()} loading={loading} />
+            <AppSearchBar
+                onSearch={(value) => dispatch(fetchTableData(value))}
+                onReset={() => dispatch(fetchTableData())}
+                loading={loading}
+            />
             <AppTable loading={loading} columns={columns} data={data} />
         </>
     );
