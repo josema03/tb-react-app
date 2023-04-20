@@ -15,6 +15,7 @@ export const AppSearchBar = ({ onSearch, onReset, loading }) => {
                         aria-describedby="fileNameQueryHelp"
                         value={inputValue}
                         onChange={({ target: { value } }) => setInputValue(value)}
+                        onKeyDown={({ code }) => code.match(/Enter/) && onSearch(inputValue)}
                     />
                     <Form.Text id="fileNameQueryHelp" muted>
                         Search for a specific file by providing its name.
